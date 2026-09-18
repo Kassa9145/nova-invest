@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Invest - Plateforme d'Investissement Crypto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.75);
+            --accent-color: #f3ba2f;
+            --text-color: #ffffff;
+            --text-muted: #9ca3af;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 70px; }
+        .hidden { display: none !important; }
+
+        /* Conteneurs et cartes */
+        .container { max-width: 480px; margin: 0 auto; padding: 15px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(10px); }
+        
+        /* Authentification */
+        .auth-container { display: flex; flex-direction: column; justify-content: center; min-height: 100vh; padding: 20px; }
+        .auth-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+        .auth-card h2 { color: var(--accent-color); margin-bottom: 20px; text-align: center; font-size: 1.5rem; }
+        
+        /* Formulaires */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; font-size: 0.95rem; }
+        .input-group { display: flex; gap: 8px; }
+        .input-group input, .input-group select { flex: 1; }
+        
+        /* Boutons */
+        .btn { width: 100%; background: var(--accent-color); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; text-decoration: none; display: inline-block; text-align: center; }
+        .btn:active { opacity: 0.8; }
+        .copier { background: var(--accent-color); color: #000; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* En-tête Tableau de bord */
+        .header-card { background: linear-gradient(135deg, #1f2937, #111827); border-left: 4px solid var(--accent-color); }
+        
+        /* Grille des actions rapides */
+        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; text-align: center; }
+        .action-item { background: var(--card-bg); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 10px; cursor: pointer; }
+        .action-item i { font-size: 1.2rem; color: var(--accent-color); margin-bottom: 5px; }
+        .action-item span { display: block; font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Solde & Gains */
+        .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .balance-box { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .balance-box span { font-size: 0.75rem; color: var(--text-muted); display: block; }
+        .balance-box h3 { font-size: 1.1rem; color: var(--accent-color); margin-top: 4px; }
+
+        /* Catalogue d'investissement */
+        .catalog-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .catalog-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; }
+
+        /* Navigation Basse */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; max-width: 480px; margin: 0 auto; }
+        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; width: 20%; }
+        .nav-item i { font-size: 1.1rem; margin-bottom: 3px; }
+        .nav-item.active { color: var(--accent-color); }
+
+        /* Onglets */
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .tab-btn.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+
+        /* Tableaux d'historique */
+        .history-item { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.82rem; }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION AUTHENTIFICATION -->
+    <div id="auth-section" class="auth-container container">
+        <div class="auth-card">
+            <!-- Formulaire de Connexion -->
+            <div id="login-box">
+                <h2>Connexion Nova Invest</h2>
+                <div class="form-group">
+                    <label>Nom d'utilisateur</label>
+                    <input type="text" id="login-user" placeholder="Votre pseudo">
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="login-pass" placeholder="Votre mot de passe">
+                </div>
+                <button class="btn" onclick="handleLogin()">Se Connecter</button>
+                <p style="text-align:center; margin-top:15px; font-size:0.85rem; color:var(--text-muted);">
+                    Pas encore de compte ? <a href="#" onclick="switchAuth('register')" style="color:var(--accent-color);">S'inscrire</a>
+                </p>
+            </div>
+
+            <!-- Formulaire d'Inscription -->
+            <div id="register-box" class="hidden">
+                <h2>Inscription Nova Invest</h2>
+                <div class="form-group">
+                    <label>Nom d'utilisateur</label>
+                    <input type="text" id="reg-user" placeholder="Choisissez un pseudo">
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="reg-pass" placeholder="Créez un mot de passe">
+                </div>
+                <div class="form-group">
+                    <label>Code de parrainage (Optionnel)</label>
+                    <input type="text" id="reg-ref" placeholder="Code parrain">
+                </div>
+                <button class="btn" onclick="handleRegister()">Créer mon compte</button>
+                <p style="text-align:center; margin-top:15px; font-size:0.85rem; color:var(--text-muted);">
+                    Déjà un compte ? <a href="#" onclick="switchAuth('login')" style="color:var(--accent-color);">Se connecter</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION APPLICATION PRINCIPALE -->
+    <div id="app-section" class="container hidden">
+        
+        <!-- VUE ACCUEIL -->
+        <div id="view-accueil" class="view-content">
+            <div class="card header-card">
+                <h3 style="color:var(--accent-color); font-size:1rem;">NOVA INVEST</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted);">Bienvenue, <span id="user-display" style="color:#fff; font-weight:bold;"></span></p>
+                <div style="margin-top:6px; display:inline-block; background:rgba(243,186,47,0.2); color:var(--accent-color); padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">ACTIF</div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="action-item" onclick="switchView('depot', document.querySelectorAll('.nav-item')[2])">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>Dépôt</span>
+                </div>
+                <div class="action-item" onclick="switchView('retrait', null)">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Retrait</span>
+                </div>
+                <div class="action-item" onclick="switchView('equipe', document.querySelectorAll('.nav-item')[3])">
+                    <i class="fas fa-users"></i>
+                    <span>Inviter</span>
+                </div>
+                <div class="action-item" onclick="switchView('mission', document.querySelectorAll('.nav-item')[1])">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Missions</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4 style="font-size:0.9rem; margin-bottom:10px; color:var(--text-muted);">Solde & Gains</h4>
+                <div class="balance-grid">
+                    <div class="balance-box">
+                        <span>Solde Principal</span>
+                        <h3 id="mainBalanceUSD">0.00 $</h3>
+                        <p id="mainBalanceFCFA" style="font-size:0.7rem; color:var(--text-muted);">0 FCFA</p>
+                    </div>
+                    <div class="balance-box">
+                        <span>Total Investi</span>
+                        <h3 id="totalInvestedUSD">0.00 $</h3>
+                        <p id="totalInvestedFCFA" style="font-size:0.7rem; color:var(--text-muted);">0 FCFA</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4 style="font-size:0.95rem; margin-bottom:12px; color:var(--accent-color);">Catalogue d'Investissement Crypto</h4>
+                <div id="catalogGrid" class="catalog-grid">
+                    <!-- Généré dynamiquement -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE MISSIONS -->
+        <div id="view-mission" class="view-content hidden">
+            <div class="card">
+                <h3>Missions Quotidiens</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-top:8px;">Accomplissez vos tâches de minage pour gagner des bonus quotidiens.</p>
+            </div>
+        </div>
+
+        <!-- VUE DÉPÔT -->
+        <div id="view-depot" class="view-content hidden">
+            <div class="card">
+                <h3>Recharger le Compte</h3>
+                <div class="tab-buttons" style="margin-top:12px;">
+                    <button class="tab-btn active" id="tab-usdt" onclick="switchDepositMethod('usdt')">USDT (BEP-20)</button>
+                    <button class="tab-btn" id="tab-momo" onclick="switchDepositMethod('momo')">Mobile Money</button>
+                </div>
+                
+                <!-- Option 1 : USDT -->
+                <div id="deposit-usdt">
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Réseau : BNB Smart Chain (BEP-20)</p>
+                    <div class="form-group">
+                        <label>Adresse de dépôt USDT</label>
+                        <div class="input-group">
+                            <input type="text" id="walletAddress" value="0x8269AD92B28e584f7bF15E5BA75b5b273A6a8632" readonly>
+                            <button class="copier" onclick="copyText('walletAddress')">Copier</button>
+                        </div>
+                    </div>
+                    <form onsubmit="handleDeposit(event)">
+                        <div class="form-group">
+                            <label>Montant en USD :</label>
+                            <input type="number" id="depositAmount" step="0.01" placeholder="Ex: 50" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Hash / TXID de la transaction :</label>
+                            <input type="text" id="txidInput" placeholder="0x..." required>
+                        </div>
+                        <button type="submit" class="btn">Valider le dépôt USDT</button>
+                    </form>
+                </div>
+
+                <!-- Option 2 : Mobile Money (Novakou) -->
+                <div id="deposit-momo" class="hidden">
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">
+                        Payez directement par Mobile Money en toute sécurité via notre passerelle dédiée.
+                    </p>
+                    <a href="https://www.novakou.com/payer/cryptominingh-mu76uahj" target="_blank" class="btn" style="background:#f3ba2f; color:#000; text-decoration:none; display:block; text-align:center;">
+                        <i class="fas fa-mobile-alt"></i> Payer par Mobile Money (Novakou)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE RETRAIT ET LIAISON DE COMPTE -->
+        <div id="view-retrait" class="view-content hidden">
+            <div class="card">
+                <h3>Effectuer un Retrait</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:12px;">Retirez vos gains vers votre compte Mobile Money ou Adresse Crypto.</p>
+                
+                <!-- Formulaire de Demande de Retrait -->
+                <form onsubmit="handleWithdrawal(event)">
+                    <div class="form-group">
+                        <label>Méthode de Retrait</label>
+                        <select id="withdraw-method" onchange="toggleWithdrawFields()" required>
+                            <option value="momo">Mobile Money</option>
+                            <option value="crypto">Crypto USDT (BEP-20)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Montant à retirer ($) :</label>
+                        <input type="number" id="withdraw-amount" step="0.01" placeholder="Ex: 10" required>
+                    </div>
+                    <button type="submit" class="btn">Demander le Retrait</button>
+                </form>
+            </div>
+
+            <!-- Paramétrage / Liaison des comptes de retrait -->
+            <div class="card">
+                <h4 style="font-size:0.95rem; color:var(--accent-color); margin-bottom:10px;">Lier vos Comptes de Retrait</h4>
+                
+                <!-- Liaison Mobile Money -->
+                <div class="form-group">
+                    <label>Opérateur Mobile Money</label>
+                    <select id="link-momo-op">
+                        <option value="MTN MoMo">MTN MoMo</option>
+                        <option value="Moov Money">Moov Money</option>
+                        <option value="Celtiis Cash">Celtiis Cash</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Numéro de téléphone</label>
+                    <input type="text" id="link-momo-num" placeholder="Ex: 97000000">
+                </div>
+                <button class="btn" style="background:#374151; color:#fff; margin-bottom:15px; font-size:0.9rem;" onclick="saveMomoAccount()">Enregistrer / Verrouiller MoMo</button>
+
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+
+                <!-- Liaison Adresse Crypto -->
+                <div class="form-group">
+                    <label>Adresse USDT (BEP-20)</label>
+                    <input type="text" id="link-crypto-addr" placeholder="0x...">
+                </div>
+                <button class="btn" style="background:#374151; color:#fff; font-size:0.9rem;" onclick="saveCryptoAccount()">Enregistrer / Verrouiller Crypto</button>
+            </div>
+
+            <!-- Historique des Retraits -->
+            <div class="card">
+                <h4 style="font-size:0.95rem; color:var(--accent-color); margin-bottom:10px;">Historique des Retraits</h4>
+                <div id="withdrawal-history-list">
+                    <p style="font-size:0.8rem; color:var(--text-muted); text-align:center;">Aucun historique pour le moment.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE ÉQUIPE / PARRAINAGE -->
+        <div id="view-equipe" class="view-content hidden">
+            <div class="card">
+                <h3>Mon Équipe & Parrainage</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:8px 0;">Partagez votre lien pour inviter des membres :</p>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="my-ref-link" readonly>
+                        <button class="copier" onclick="copyText('my-ref-link')">Copier</button>
+                    </div>
+                </div>
+                <p id="profile-code" style="font-size:0.85rem; color:var(--accent-color); margin-top:10px;"></p>
+            </div>
+        </div>
+
+        <!-- VUE PROFIL / MOI -->
+        <div id="view-moi" class="view-content hidden">
+            <div class="card">
+                <h3 id="profile-username">Compte</h3>
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:12px 0;">
+                <button class="btn" style="background:#ef4444; color:#fff;" onclick="handleLogout()">Se Déconnecter</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NAVIGATION BASSE -->
+    <div id="bottom-nav" class="bottom-nav hidden">
+        <button class="nav-item active" onclick="switchView('accueil', this)">
+            <i class="fas fa-home"></i>
+            <span>Accueil</span>
+        </button>
+        <button class="nav-item" onclick="switchView('mission', this)">
+            <i class="fas fa-bullseye"></i>
+            <span>Mission</span>
+        </button>
+        <button class="nav-item" onclick="switchView('depot', this)">
+            <i class="fas fa-wallet"></i>
+            <span>Dépôt</span>
+        </button>
+        <button class="nav-item" onclick="switchView('equipe', this)">
+            <i class="fas fa-users"></i>
+            <span>Équipe</span>
+        </button>
+        <button class="nav-item" onclick="switchView('moi', this)">
+            <i class="fas fa-cog"></i>
+            <span>Moi</span>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
